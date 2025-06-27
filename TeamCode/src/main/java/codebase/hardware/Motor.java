@@ -17,7 +17,7 @@ public class Motor {
     }
 
     /**
-     * Sets the velocity in relation to the diameter of the wheels and the ticks per second of the motor.
+     * Sets the velocity in relation to the diameter of the wheel and the ticks per rotation of the motor.
      * @param velocity The desired velocity measured in inches per second.
      */
     public void setVelocity(double velocity) {
@@ -27,7 +27,7 @@ public class Motor {
     }
 
     /**
-     * Gets the velocity in relation to the diameter of the wheels and the ticks per second of the motor.
+     * Gets the velocity in relation to the diameter of the wheel and the ticks per rotation of the motor.
      * @return The desired velocity measured in inches per second.
      */
     public double getVelocity() {
