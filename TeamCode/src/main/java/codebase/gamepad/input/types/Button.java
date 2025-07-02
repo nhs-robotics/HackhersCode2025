@@ -1,5 +1,6 @@
 package codebase.gamepad.input.types;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -15,7 +16,7 @@ import codebase.gamepad.input.GOnToggle;
 
 
 
-public class Button implements GInput, GAnalog<Button>, GOnToggle<Button>, GIsToggled,GIsPressed,GOnPress<Button>,GOnRelease<Button>{
+public class Button implements GInput, GOnToggle<Button>, GIsToggled,GIsPressed,GOnPress<Button>,GOnRelease<Button>{
     private final Supplier<Boolean> isPressed;
     private final Controller controller;
 
@@ -38,23 +39,77 @@ public class Button implements GInput, GAnalog<Button>, GOnToggle<Button>, GIsTo
         if(this.onPress != null && isPressed && !this.wasDownLast){
             onPress.run();
         }
-        if(this.onRelease != null && isPressed && !this.wasDownLast){
+        if(this.onRelease != null && !isPressed && this.wasDownLast){
             onRelease.run();
         }
-        if(this.onPress != null && isPressed && !this.wasDownLast){
-            onPress.run();
+        if(this.whileDown != null && isPressed){
+            whileDown.run();
         }
-
-        //Toggle
-
-        if(isPressed && !wasDownLast){
-            if(onToggle != null ){
+/*
+        if (isPressed && !wasDownLast) {
+            if (onToggle != null) {
                 this.toggleState = !this.toggleState;
-
             }
+
+
         }
 
+ */
+        this.wasDownLast = isPressed;
+    }
+
+
+
+
+    @Override
+    public Controller getController() {
+        return this.controller;
+    }
+
+    @Override
+    public boolean isPressed() {
+        return this.isPressed.get();
+    }
+
+    @Override
+    public boolean isToggled() {
+        return this.toggleState;
+    }
+
+    @Override
+    public Button onPress(Runnable onPress) {
+        this.onPress = onPress;
+        return this;
 
     }
 
+    @Override
+    public Button onRelease(Runnable onRelease) {
+        this.onRelease = onRelease;
+        return this;
+    }
+
+    @Override
+    public Button onToggleOn(Runnable onToggleOn) {
+        this.onToggleOn = onToggleOn;
+        return this;
+    }
+
+    @Override
+    public Button onToggleOff(Runnable onToggleOff) {
+        this.onToggleOff = onToggleOff;
+        return this;
+    }
+
+    @Override
+    public Button initalToggleState(boolean toggled) {
+        this.toggleState = toggled;
+        return this;
+    }
+
+    @Override
+    public Button onToggle(Consumer<Boolean> onToggle) {
+        this.onToggle = onToggle;
+        return this;
+    }
 }
