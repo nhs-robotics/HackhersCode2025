@@ -36,8 +36,25 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled,GIsPressed,
     @Override
     public void loop(){
         boolean isPressed = this.isPressed.get();
-        if(this.onPress != null && isPressed && !this.wasDownLast){
-            onPress.run();
+        if(isPressed && !this.wasDownLast) {
+            if (this.onPress != null) {
+                onPress.run();
+            }
+
+            // Toggle
+            this.toggleState = !this.toggleState;
+
+            if (this.onToggle != null) {
+                this.onToggle.accept(this.toggleState);
+            }
+
+            if (this.onToggleOff != null && !this.toggleState) {
+                this.onToggleOff.run();
+            }
+
+            if (this.onToggleOn != null && this.toggleState) {
+                this.onToggleOn.run();
+            }
         }
         if(this.onRelease != null && !isPressed && this.wasDownLast){
             onRelease.run();
@@ -45,21 +62,9 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled,GIsPressed,
         if(this.whileDown != null && isPressed){
             whileDown.run();
         }
-/*
-        if (isPressed && !wasDownLast) {
-            if (onToggle != null) {
-                this.toggleState = !this.toggleState;
-            }
 
-
-        }
-
- */
         this.wasDownLast = isPressed;
     }
-
-
-
 
     @Override
     public Controller getController() {
