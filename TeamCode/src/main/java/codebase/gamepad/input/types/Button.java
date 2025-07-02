@@ -13,14 +13,14 @@ import codebase.gamepad.input.GIsToggled;
 import codebase.gamepad.input.GOnPress;
 import codebase.gamepad.input.GOnRelease;
 import codebase.gamepad.input.GOnToggle;
+import codebase.gamepad.input.GWhileDown;
 
 
-
-public class Button implements GInput, GOnToggle<Button>, GIsToggled,GIsPressed,GOnPress<Button>,GOnRelease<Button>{
+public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed, GWhileDown<Button>, GOnPress<Button>, GOnRelease<Button>{
     private final Supplier<Boolean> isPressed;
     private final Controller controller;
 
-    private Runnable onPress, onRelease, whileDown,onToggleOn, onToggleOff;
+    private Runnable onPress, onRelease, whileDown, onToggleOn, onToggleOff;
 
     private Consumer<Boolean> onToggle;
 
@@ -34,7 +34,7 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled,GIsPressed,
     }
 
     @Override
-    public void loop(){
+    public void loop() {
         boolean isPressed = this.isPressed.get();
         if(isPressed && !this.wasDownLast) {
             if (this.onPress != null) {
@@ -79,6 +79,12 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled,GIsPressed,
     @Override
     public boolean isToggled() {
         return this.toggleState;
+    }
+
+    @Override
+    public Button whileDown(Runnable whileDown) {
+        this.whileDown = whileDown;
+        return this;
     }
 
     @Override
