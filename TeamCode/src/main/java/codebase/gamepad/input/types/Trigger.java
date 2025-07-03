@@ -3,7 +3,6 @@ package codebase.gamepad.input.types;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-
 import codebase.gamepad.Gamepad;
 import codebase.gamepad.input.GInput;
 import codebase.gamepad.input.GIsPressed;
@@ -15,21 +14,16 @@ import codebase.gamepad.input.GWhileDown;
 
 
 public class Trigger implements GInput, GIsPressed, GIsToggled, GWhileDown<Trigger>, GOnToggle<Trigger>, GOnPress<Trigger>, GOnRelease<Trigger> {
-    private final Supplier<Float> valueSupplier;
-    private final Gamepad gamepad;
-
-    private Runnable onPress, onRelease, whileDown, onToggleOn, onToggleOff;
-
-    private Consumer<Boolean> onToggle;
-
-    private boolean wasDownLast;
-
-    private boolean toggleState;
-
     /**
      * The minimum value for the trigger to be considered down
      */
     private static final float PRESS_THRESHOLD = 0;
+    private final Supplier<Float> valueSupplier;
+    private final Gamepad gamepad;
+    private Runnable onPress, onRelease, whileDown, onToggleOn, onToggleOff;
+    private Consumer<Boolean> onToggle;
+    private boolean wasDownLast;
+    private boolean toggleState;
 
     public Trigger(Gamepad gamepad, Supplier<Float> valueSupplier) {
         this.valueSupplier = valueSupplier;
@@ -40,7 +34,7 @@ public class Trigger implements GInput, GIsPressed, GIsToggled, GWhileDown<Trigg
     public void loop() {
         boolean isPressed = isPressed();
 
-        if(isPressed && !this.wasDownLast) {
+        if (isPressed && !this.wasDownLast) {
             if (this.onPress != null) {
                 onPress.run();
             }

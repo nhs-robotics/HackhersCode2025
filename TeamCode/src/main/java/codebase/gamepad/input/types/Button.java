@@ -3,7 +3,6 @@ package codebase.gamepad.input.types;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-
 import codebase.gamepad.Gamepad;
 import codebase.gamepad.input.GInput;
 import codebase.gamepad.input.GIsPressed;
@@ -14,7 +13,7 @@ import codebase.gamepad.input.GOnToggle;
 import codebase.gamepad.input.GWhileDown;
 
 
-public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed, GWhileDown<Button>, GOnPress<Button>, GOnRelease<Button>{
+public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed, GWhileDown<Button>, GOnPress<Button>, GOnRelease<Button> {
     private final Supplier<Boolean> isPressed;
     private final Gamepad gamepad;
 
@@ -26,7 +25,7 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed
 
     private boolean toggleState;
 
-    public Button(Gamepad gamepad, Supplier<Boolean> isDown){
+    public Button(Gamepad gamepad, Supplier<Boolean> isDown) {
         isPressed = isDown;
         this.gamepad = gamepad;
     }
@@ -34,7 +33,7 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed
     @Override
     public void loop() {
         boolean isPressed = this.isPressed.get();
-        if(isPressed && !this.wasDownLast) {
+        if (isPressed && !this.wasDownLast) {
             if (this.onPress != null) {
                 onPress.run();
             }
@@ -54,10 +53,10 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed
                 this.onToggleOn.run();
             }
         }
-        if(this.onRelease != null && !isPressed && this.wasDownLast){
+        if (this.onRelease != null && !isPressed && this.wasDownLast) {
             onRelease.run();
         }
-        if(this.whileDown != null && isPressed){
+        if (this.whileDown != null && isPressed) {
             whileDown.run();
         }
 

@@ -10,12 +10,9 @@ import codebase.gamepad.input.GInput;
 public class Joystick implements GInput, GAnalog<Joystick> {
 
     private final Gamepad gamepad;
-
-    private BiConsumer<Float, Float> onMove;
-
     private final Supplier<Float> xSupplier;
     private final Supplier<Float> ySupplier;
-
+    private BiConsumer<Float, Float> onMove;
     private float lastX;
     private float lastY;
 

@@ -1,4 +1,5 @@
 package codebase.gamepad.input;
+
 import java.util.function.BiConsumer;
 
 public interface GAnalog<T> {
