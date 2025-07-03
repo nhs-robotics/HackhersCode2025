@@ -3,13 +3,13 @@ package codebase.gamepad.input.types;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import codebase.gamepad.Controller;
+import codebase.gamepad.Gamepad;
 import codebase.gamepad.input.GAnalog;
 import codebase.gamepad.input.GInput;
 
 public class Joystick implements GInput, GAnalog<Joystick> {
 
-    private final Controller controller;
+    private final Gamepad gamepad;
 
     private BiConsumer<Float, Float> onMove;
 
@@ -19,8 +19,8 @@ public class Joystick implements GInput, GAnalog<Joystick> {
     private float lastX;
     private float lastY;
 
-    public Joystick(Controller controller, Supplier<Float> xSupplier, Supplier<Float> ySupplier) {
-        this.controller = controller;
+    public Joystick(Gamepad gamepad, Supplier<Float> xSupplier, Supplier<Float> ySupplier) {
+        this.gamepad = gamepad;
         this.xSupplier = xSupplier;
         this.ySupplier = ySupplier;
     }
@@ -47,7 +47,7 @@ public class Joystick implements GInput, GAnalog<Joystick> {
     }
 
     @Override
-    public Controller getController() {
-        return this.controller;
+    public Gamepad getGamepad() {
+        return this.gamepad;
     }
 }

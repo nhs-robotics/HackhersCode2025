@@ -1,13 +1,11 @@
 package codebase.gamepad;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
-
 import codebase.Loop;
 import codebase.gamepad.input.types.Button;
 import codebase.gamepad.input.types.Joystick;
 import codebase.gamepad.input.types.Trigger;
 
-public class Controller implements Loop {
+public class Gamepad implements Loop {
 
     public final Button xButton;
     public final Button yButton;
@@ -31,7 +29,7 @@ public class Controller implements Loop {
     public final Trigger leftTrigger;
     public final Trigger rightTrigger;
 
-    public Controller(Gamepad gamepad) {
+    public Gamepad(com.qualcomm.robotcore.hardware.Gamepad gamepad) {
         this.xButton = new Button(this, () -> gamepad.x);
         this.yButton = new Button(this, () -> gamepad.y);
         this.aButton = new Button(this, () -> gamepad.a);

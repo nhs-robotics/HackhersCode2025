@@ -1,13 +1,11 @@
 package codebase.gamepad.input.types;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 
-import codebase.gamepad.Controller;
+import codebase.gamepad.Gamepad;
 import codebase.gamepad.input.GInput;
-import codebase.gamepad.input.GAnalog;
 import codebase.gamepad.input.GIsPressed;
 import codebase.gamepad.input.GIsToggled;
 import codebase.gamepad.input.GOnPress;
@@ -18,7 +16,7 @@ import codebase.gamepad.input.GWhileDown;
 
 public class Trigger implements GInput, GIsPressed, GIsToggled, GWhileDown<Trigger>, GOnToggle<Trigger>, GOnPress<Trigger>, GOnRelease<Trigger> {
     private final Supplier<Float> valueSupplier;
-    private final Controller controller;
+    private final Gamepad gamepad;
 
     private Runnable onPress, onRelease, whileDown, onToggleOn, onToggleOff;
 
@@ -33,9 +31,9 @@ public class Trigger implements GInput, GIsPressed, GIsToggled, GWhileDown<Trigg
      */
     private static final float PRESS_THRESHOLD = 0;
 
-    public Trigger(Controller controller, Supplier<Float> valueSupplier) {
+    public Trigger(Gamepad gamepad, Supplier<Float> valueSupplier) {
         this.valueSupplier = valueSupplier;
-        this.controller = controller;
+        this.gamepad = gamepad;
     }
 
     @Override
@@ -73,8 +71,8 @@ public class Trigger implements GInput, GIsPressed, GIsToggled, GWhileDown<Trigg
     }
 
     @Override
-    public Controller getController() {
-        return this.controller;
+    public Gamepad getGamepad() {
+        return this.gamepad;
     }
 
     @Override
@@ -118,7 +116,7 @@ public class Trigger implements GInput, GIsPressed, GIsToggled, GWhileDown<Trigg
     }
 
     @Override
-    public Trigger initalToggleState(boolean toggled) {
+    public Trigger initialToggleState(boolean toggled) {
         this.toggleState = toggled;
         return this;
     }

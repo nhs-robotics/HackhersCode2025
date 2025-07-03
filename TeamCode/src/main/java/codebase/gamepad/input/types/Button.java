@@ -1,13 +1,11 @@
 package codebase.gamepad.input.types;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 
-import codebase.gamepad.Controller;
+import codebase.gamepad.Gamepad;
 import codebase.gamepad.input.GInput;
-import codebase.gamepad.input.GAnalog;
 import codebase.gamepad.input.GIsPressed;
 import codebase.gamepad.input.GIsToggled;
 import codebase.gamepad.input.GOnPress;
@@ -18,7 +16,7 @@ import codebase.gamepad.input.GWhileDown;
 
 public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed, GWhileDown<Button>, GOnPress<Button>, GOnRelease<Button>{
     private final Supplier<Boolean> isPressed;
-    private final Controller controller;
+    private final Gamepad gamepad;
 
     private Runnable onPress, onRelease, whileDown, onToggleOn, onToggleOff;
 
@@ -28,9 +26,9 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed
 
     private boolean toggleState;
 
-    public Button(Controller controller, Supplier<Boolean> isDown){
+    public Button(Gamepad gamepad, Supplier<Boolean> isDown){
         isPressed = isDown;
-        this.controller = controller;
+        this.gamepad = gamepad;
     }
 
     @Override
@@ -67,8 +65,8 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed
     }
 
     @Override
-    public Controller getController() {
-        return this.controller;
+    public Gamepad getGamepad() {
+        return this.gamepad;
     }
 
     @Override
@@ -113,7 +111,7 @@ public class Button implements GInput, GOnToggle<Button>, GIsToggled, GIsPressed
     }
 
     @Override
-    public Button initalToggleState(boolean toggled) {
+    public Button initialToggleState(boolean toggled) {
         this.toggleState = toggled;
         return this;
     }
