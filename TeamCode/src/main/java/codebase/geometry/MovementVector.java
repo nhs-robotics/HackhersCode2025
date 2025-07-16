@@ -25,6 +25,10 @@ public class MovementVector implements Serializable {
         this.angleUnit = angleUnit;
     }
 
+    public MovementVector(double vertical, double horizontal, double rotation) {
+        this(vertical, horizontal, rotation, AngleUnit.RADIANS);
+    }
+
     public MovementVector(double[] v, AngleUnit angleUnit) {
         this(v[0], v[1], v[2], angleUnit);
     }

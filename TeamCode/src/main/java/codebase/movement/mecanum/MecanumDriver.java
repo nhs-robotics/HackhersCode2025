@@ -1,5 +1,8 @@
 package codebase.movement.mecanum;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+import codebase.geometry.FieldPosition;
 import codebase.geometry.MovementVector;
 import codebase.hardware.Motor;
 
@@ -42,6 +45,20 @@ public class MecanumDriver {
 
     }
 
-//.    public void setAbsoluteVelocity()
+    public void setAbsoluteVelocity(FieldPosition position, MovementVector velocity) {
+        double direction = position.getDirection(AngleUnit.RADIANS);
 
+        double relativeVerticalVelocity = Math.cos(direction) * velocity.getVertical() + Math.sin(direction) * velocity.getHorizontal();
+        double relativeHorizontalVelocity = -Math.cos(direction) * velocity.getHorizontal() + Math.sin(direction) * velocity.getVertical();
+
+        this.setRelativeVelocity(new MovementVector(
+                relativeVerticalVelocity,
+                relativeHorizontalVelocity,
+                velocity.getRotation()
+        ));
+    }
+
+    public void stop() {
+        setMotorVelocities(0, 0, 0, 0);
+    }
 }
