@@ -10,108 +10,130 @@ import androidx.annotation.NonNull;
 import com.google.firebase.database.annotations.NotNull;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MovementVector implements Serializable {
-    protected double vertical;
-    protected double horizontal;
-    protected double rotation;
-    protected AngleUnit angleUnit;
+    /**
+     * Vertical component, representing either linear velocity (forward/backward) in inches per second
+     * or normalized power (-1 to 1) for forward/backward motion. Positive values indicate forward motion.
+     */
+    protected double verticalVelocity;
 
-    public MovementVector(double vertical, double horizontal, double rotation, AngleUnit angleUnit) {
-        this.vertical = vertical;
-        this.horizontal = horizontal;
-        this.rotation = rotation;
-        this.angleUnit = angleUnit;
+    /**
+     * Horizontal component, representing either linear velocity (left/right) in inches per second
+     * or normalized power (-1 to 1) for left/right motion. Positive values indicate rightward motion.
+     */
+    protected double horizontalVelocity;
+
+    /**
+     * Rotational component, representing either angular velocity in radians per second
+     * or normalized power (-1 to 1) for rotation. Positive values indicate clockwise motion.
+     */
+    protected double rotationalVelocity;
+
+    /**
+     * Constructs a MovementVector with specified vertical, horizontal, and rotational components.
+     * @param verticalVelocity Linear velocity (inches/second) or power (-1 to 1) for forward/backward motion.
+     * @param horizontalVelocity Linear velocity (inches/second) or power (-1 to 1) for left/right motion.
+     * @param rotationalVelocity Angular velocity (radians/second) or power (-1 to 1) for rotation.
+     */
+    public MovementVector(double verticalVelocity, double horizontalVelocity, double rotationalVelocity) {
+        this.verticalVelocity = verticalVelocity;
+        this.horizontalVelocity = horizontalVelocity;
+        this.rotationalVelocity = rotationalVelocity;
     }
 
-    public MovementVector(double vertical, double horizontal, double rotation) {
-        this(vertical, horizontal, rotation, AngleUnit.RADIANS);
+    /**
+     * Constructs a MovementVector from a Vector3D, where x, y, z correspond to vertical, horizontal, and rotational components.
+     * @param v Vector3D with components as velocities (inches/second, radians/second) or powers (-1 to 1).
+     */
+    public MovementVector(@NotNull Vector3D v) {
+        this(v.getX(), v.getY(), v.getZ());
     }
 
-    public MovementVector(double[] v, AngleUnit angleUnit) {
-        this(v[0], v[1], v[2], angleUnit);
+    /**
+     * Gets the vertical component (velocity in inches/second or power from -1 to 1).
+     * @return Vertical component.
+     */
+    public double getVerticalVelocity() {
+        return verticalVelocity;
     }
 
-    public MovementVector(@NotNull Vector3D v, AngleUnit angleUnit) {
-        this(v.getX(), v.getY(), v.getZ(), angleUnit);
+    /**
+     * Gets the horizontal component (velocity in inches/second or power from -1 to 1).
+     * @return Horizontal component.
+     */
+    public double getHorizontalVelocity() {
+        return horizontalVelocity;
     }
 
-    public double getVertical() {
-        return vertical;
+    /**
+     * Gets the rotational component (angular velocity in radians/second or power from -1 to 1).
+     * @return Rotational component.
+     */
+    public double getRotationalVelocity() {
+        return rotationalVelocity;
     }
 
-    public double getHorizontal() {
-        return horizontal;
+    /**
+     * Sets the vertical component (velocity in inches/second or power from -1 to 1).
+     * @param verticalVelocity Vertical component.
+     */
+    public void setVerticalVelocity(double verticalVelocity) {
+        this.verticalVelocity = verticalVelocity;
     }
 
-    public double getRotation() {
-        return rotation;
+    /**
+     * Sets the horizontal component (velocity in inches/second or power from -1 to 1).
+     * @param horizontalVelocity Horizontal component.
+     */
+    public void setHorizontalVelocity(double horizontalVelocity) {
+        this.horizontalVelocity = horizontalVelocity;
     }
 
-    public AngleUnit getAngleUnit() {
-        return this.angleUnit;
+    /**
+     * Sets the rotational component (angular velocity in radians/second or power from -1 to 1).
+     * @param rotationalVelocity Rotational component.
+     */
+    public void setRotationalVelocity(double rotationalVelocity) {
+        this.rotationalVelocity = rotationalVelocity;
     }
 
-    public void setVertical(double vertical) {
-        this.vertical = vertical;
-    }
-
-    public void setHorizontal(double horizontal) {
-        this.horizontal = horizontal;
-    }
-
-    public void setRotation(double rotation, AngleUnit angleUnit) {
-        this.rotation = rotation;
-        this.angleUnit = angleUnit;
-    }
-
+    /**
+     * Adds another MovementVector to this one, combining their components.
+     * @param movementVector The vector to add (velocities or powers).
+     * @return A new MovementVector with summed components.
+     */
     public MovementVector add(@NotNull MovementVector movementVector) {
         return new MovementVector(
-                this.vertical + movementVector.vertical,
-                this.horizontal + movementVector.horizontal,
-                this.angleUnit.toDegrees(this.rotation) + movementVector.angleUnit.toDegrees(movementVector.rotation),
-                AngleUnit.DEGREES
+                this.verticalVelocity + movementVector.verticalVelocity,
+                this.horizontalVelocity + movementVector.horizontalVelocity,
+                this.rotationalVelocity + movementVector.rotationalVelocity
         );
     }
 
+    /**
+     * Subtracts another MovementVector from this one.
+     * @param movementVector The vector to subtract (velocities or powers).
+     * @return A new MovementVector with subtracted components.
+     */
     public MovementVector subtract(@NotNull MovementVector movementVector) {
         return new MovementVector(
-                this.vertical - movementVector.vertical,
-                this.horizontal - movementVector.horizontal,
-                this.angleUnit.toDegrees(this.rotation) - movementVector.angleUnit.toDegrees(movementVector.rotation),
-                AngleUnit.DEGREES
+                this.verticalVelocity - movementVector.verticalVelocity,
+                this.horizontalVelocity - movementVector.horizontalVelocity,
+                this.rotationalVelocity - movementVector.rotationalVelocity
         );
     }
 
+    /**
+     * Scales this MovementVector by a scalar magnitude.
+     * @param magnitude The scaling factor.
+     * @return A new MovementVector with scaled components.
+     */
     public MovementVector scalarMultiply(double magnitude) {
         return new MovementVector(
-                this.vertical * magnitude,
-                this.horizontal * magnitude,
-                this.rotation * magnitude,
-                this.angleUnit
-        );
-    }
-
-    public MovementVector normalize() {
-        double magnitude = this.getMagnitude();
-
-        // Check for division by zero
-        if (magnitude == 0) {
-            throw new ArithmeticException("Cannot normalize a zero vector");
-        }
-
-        return new MovementVector(
-                this.vertical / magnitude,
-                this.horizontal / magnitude,
-                this.rotation / magnitude,
-                this.angleUnit
-        );
-    }
-
-    public double getMagnitude() {
-        return Math.sqrt(
-                this.vertical * this.vertical + this.horizontal * this.horizontal + this.rotation * this.rotation
+                this.verticalVelocity * magnitude,
+                this.horizontalVelocity * magnitude,
+                this.rotationalVelocity * magnitude
         );
     }
 
@@ -127,18 +149,18 @@ public class MovementVector implements Serializable {
 
         MovementVector that = (MovementVector) o;
 
-        return this.vertical == that.vertical && this.horizontal == that.horizontal && this.rotation == that.rotation;
+        return this.verticalVelocity == that.verticalVelocity && this.horizontalVelocity == that.horizontalVelocity && this.rotationalVelocity == that.rotationalVelocity;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(vertical, horizontal, rotation);
+        return Objects.hash(verticalVelocity, horizontalVelocity, rotationalVelocity);
     }
 
     @NonNull
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("{%f; %f; %f}", vertical, horizontal, rotation);
+        return String.format("{%f; %f; %f}", verticalVelocity, horizontalVelocity, rotationalVelocity);
     }
 }
