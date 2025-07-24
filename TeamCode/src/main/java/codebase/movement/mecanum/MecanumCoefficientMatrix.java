@@ -1,5 +1,4 @@
 package codebase.movement.mecanum;
-import codebase.movement.mecanum.MecanumCoefficientSet;
 
 /**
  * Coefficient matrix for the total coefficients, vertical driving coefficients, horizontal driving coefficients, and the rotational coefficients. Omni driving coefficients are used for corrections that are easier to make on the software side than hardware side:
