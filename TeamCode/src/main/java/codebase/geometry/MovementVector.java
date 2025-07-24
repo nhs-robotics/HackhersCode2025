@@ -1,15 +1,10 @@
 package codebase.geometry;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
-
-import com.google.firebase.database.annotations.NotNull;
-
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public class MovementVector implements Serializable {
     /**
@@ -40,14 +35,6 @@ public class MovementVector implements Serializable {
         this.verticalVelocity = verticalVelocity;
         this.horizontalVelocity = horizontalVelocity;
         this.rotationalVelocity = rotationalVelocity;
-    }
-
-    /**
-     * Constructs a MovementVector from a Vector3D, where x, y, z correspond to vertical, horizontal, and rotational components.
-     * @param v Vector3D with components as velocities (inches/second, radians/second) or powers (-1 to 1).
-     */
-    public MovementVector(@NotNull Vector3D v) {
-        this(v.getX(), v.getY(), v.getZ());
     }
 
     /**
@@ -103,7 +90,7 @@ public class MovementVector implements Serializable {
      * @param movementVector The vector to add (velocities or powers).
      * @return A new MovementVector with summed components.
      */
-    public MovementVector add(@NotNull MovementVector movementVector) {
+    public MovementVector add(@NonNull MovementVector movementVector) {
         return new MovementVector(
                 this.verticalVelocity + movementVector.verticalVelocity,
                 this.horizontalVelocity + movementVector.horizontalVelocity,
@@ -116,7 +103,7 @@ public class MovementVector implements Serializable {
      * @param movementVector The vector to subtract (velocities or powers).
      * @return A new MovementVector with subtracted components.
      */
-    public MovementVector subtract(@NotNull MovementVector movementVector) {
+    public MovementVector subtract(@NonNull MovementVector movementVector) {
         return new MovementVector(
                 this.verticalVelocity - movementVector.verticalVelocity,
                 this.horizontalVelocity - movementVector.horizontalVelocity,
@@ -158,9 +145,8 @@ public class MovementVector implements Serializable {
     }
 
     @NonNull
-    @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("{%f; %f; %f}", verticalVelocity, horizontalVelocity, rotationalVelocity);
+        return String.format(Locale.getDefault(), "{%f; %f; %f}", verticalVelocity, horizontalVelocity, rotationalVelocity);
     }
 }

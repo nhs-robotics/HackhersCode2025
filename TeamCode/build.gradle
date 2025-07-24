@@ -25,5 +25,4 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation 'com.google.firebase:firebase-database:21.0.0'
 }

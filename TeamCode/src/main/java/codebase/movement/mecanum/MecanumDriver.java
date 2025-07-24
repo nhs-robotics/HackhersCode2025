@@ -7,20 +7,18 @@ import codebase.geometry.MovementVector;
 import codebase.hardware.Motor;
 
 /**
- * Driver class for controlling a mecanum wheel drive system in FTC robotics.
+ * Driver class for controlling a mecanum drive system
  * Supports both power-based and velocity-based control modes for relative and absolute movements.
+ * Absolute movement refers to field-centric movement. For example, a positive vertical means "up" on the field.
+ * Relative movement refers to robot-centric movement. For example, a positive vertical means "forwards" for the robot.
  */
 public class MecanumDriver {
-    /** Front-left motor. */
     public final Motor fl;
-    /** Front-right motor. */
     public final Motor fr;
-    /** Back-left motor. */
     public final Motor bl;
-    /** Back-right motor. */
     public final Motor br;
     /** Coefficient matrix for mecanum drive adjustments. */
-    public final MecanumCoefficientMatrix omniDriveCoefficients;
+    public final MecanumCoefficientMatrix mecanumDriveCoefficients;
     /** Maximum allowable wheel velocity in inches per second. */
     private final double maxWheelVelocity;
 
@@ -31,7 +29,7 @@ public class MecanumDriver {
      * @param fr Front-right motor.
      * @param bl Back-left motor.
      * @param br Back-right motor.
-     * @param omniDriveCoefficients Coefficient matrix for drive adjustments.
+     * @param mecanumDriveCoefficients Coefficient matrix for drive adjustments.
      * @param maxWheelVelocity Maximum wheel velocity in inches per second.
      */
     public MecanumDriver(
@@ -39,14 +37,14 @@ public class MecanumDriver {
             Motor fr,
             Motor bl,
             Motor br,
-            MecanumCoefficientMatrix omniDriveCoefficients,
+            MecanumCoefficientMatrix mecanumDriveCoefficients,
             double maxWheelVelocity
     ) {
         this.fl = fl;
         this.fr = fr;
         this.bl = bl;
         this.br = br;
-        this.omniDriveCoefficients = omniDriveCoefficients;
+        this.mecanumDriveCoefficients = mecanumDriveCoefficients;
         this.maxWheelVelocity = maxWheelVelocity;
     }
 
@@ -87,21 +85,17 @@ public class MecanumDriver {
      * @param powerInput MovementVector containing normalized power inputs (-1 to 1).
      */
     public void setRelativePower(MovementVector powerInput) {
-        MecanumCoefficientSet coefficientSet = this.omniDriveCoefficients.calculateCoefficientsWithPower(
+        MecanumCoefficientSet coefficientSet = this.mecanumDriveCoefficients.calculateCoefficientsWithPower(
                 powerInput.getVerticalVelocity(),
                 powerInput.getHorizontalVelocity(),
                 powerInput.getRotationalVelocity()
-        );
-
-        double maxAbs = Math.max(Math.max(Math.abs(coefficientSet.fl), Math.abs(coefficientSet.fr)),
-                Math.max(Math.abs(coefficientSet.bl), Math.abs(coefficientSet.br)));
-        double scale = (maxAbs > 1.0) ? (1.0 / maxAbs) : 1.0;
+        ).normalize(1);
 
         this.setMotorPowers(
-                coefficientSet.fl * scale,
-                coefficientSet.fr * scale,
-                coefficientSet.bl * scale,
-                coefficientSet.br * scale
+                coefficientSet.fl,
+                coefficientSet.fr,
+                coefficientSet.bl,
+                coefficientSet.br
         );
     }
 
@@ -112,21 +106,17 @@ public class MecanumDriver {
      * @param velocity MovementVector containing velocity inputs (inches/second or radians/second).
      */
     public void setRelativeVelocity(MovementVector velocity) {
-        MecanumCoefficientSet coefficientSet = this.omniDriveCoefficients.calculateCoefficientsWithVelocity(
+        MecanumCoefficientSet coefficientSet = this.mecanumDriveCoefficients.calculateCoefficientsWithVelocity(
                 velocity.getVerticalVelocity(),
                 velocity.getHorizontalVelocity(),
                 velocity.getRotationalVelocity()
-        );
-
-        double maxAbs = Math.max(Math.max(Math.abs(coefficientSet.fl), Math.abs(coefficientSet.fr)),
-                Math.max(Math.abs(coefficientSet.bl), Math.abs(coefficientSet.br)));
-        double scale = (maxAbs > maxWheelVelocity) ? (maxWheelVelocity / maxAbs) : 1.0;
+        ).normalize(maxWheelVelocity);
 
         this.setMotorVelocities(
-                coefficientSet.fl * scale,
-                coefficientSet.fr * scale,
-                coefficientSet.bl * scale,
-                coefficientSet.br * scale
+                coefficientSet.fl,
+                coefficientSet.fr,
+                coefficientSet.bl,
+                coefficientSet.br
         );
     }
 

@@ -18,7 +18,16 @@ public class MecanumCoefficientSet {
         this.br = br;
     }
 
-    public MecanumCoefficientSet(double[] coefficients) {
-        this(coefficients[0], coefficients[1], coefficients[2], coefficients[3]);
+    public MecanumCoefficientSet normalize(double maxValue) {
+        double maxAbs = Math.max(Math.max(Math.abs(this.fl), Math.abs(this.fr)),
+                Math.max(Math.abs(this.bl), Math.abs(this.br)));
+        double scale = (maxAbs > maxValue) ? (maxValue / maxAbs) : 1.0;
+
+        return new MecanumCoefficientSet(
+                this.fl * scale,
+                this.fr * scale,
+                this.bl * scale,
+                this.br * scale
+        );
     }
 }
