@@ -18,10 +18,15 @@ public class MecanumCoefficientSet {
         this.br = br;
     }
 
-    public MecanumCoefficientSet normalize(double maxValue) {
-        double maxAbs = Math.max(Math.max(Math.abs(this.fl), Math.abs(this.fr)),
+    /**
+     * Creates a new MecanumCoefficientSet that has the same ratios between coefficients but is scaled down so that no single coefficient has an absolute value greater than the given max value.
+     * @param maxValueAllowed the highest absolute value a single coefficient can have.
+     * @return the scaled MecanumCoefficientSet.
+     */
+    public MecanumCoefficientSet downScale(double maxValueAllowed) {
+        double highestAbs = Math.max(Math.max(Math.abs(this.fl), Math.abs(this.fr)),
                 Math.max(Math.abs(this.bl), Math.abs(this.br)));
-        double scale = (maxAbs > maxValue) ? (maxValue / maxAbs) : 1.0;
+        double scale = (highestAbs > maxValueAllowed) ? (maxValueAllowed / highestAbs) : 1.0;
 
         return new MecanumCoefficientSet(
                 this.fl * scale,

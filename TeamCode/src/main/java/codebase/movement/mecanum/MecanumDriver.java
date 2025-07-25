@@ -89,7 +89,7 @@ public class MecanumDriver {
                 powerInput.getVerticalVelocity(),
                 powerInput.getHorizontalVelocity(),
                 powerInput.getRotationalVelocity()
-        ).normalize(1);
+        ).downScale(1);
 
         this.setMotorPowers(
                 coefficientSet.fl,
@@ -110,7 +110,7 @@ public class MecanumDriver {
                 velocity.getVerticalVelocity(),
                 velocity.getHorizontalVelocity(),
                 velocity.getRotationalVelocity()
-        ).normalize(maxWheelVelocity);
+        ).downScale(maxWheelVelocity);
 
         this.setMotorVelocities(
                 coefficientSet.fl,
