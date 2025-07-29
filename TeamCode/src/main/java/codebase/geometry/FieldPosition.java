@@ -26,6 +26,6 @@ public class FieldPosition extends Point {
     }
 
     public Pose2D toPose2D() {
-        return new Pose2D(DistanceUnit.INCH, this.getX(), this.getY(), AngleUnit.RADIANS, this.getDirection(AngleUnit.RADIANS));
+        return new Pose2D(DistanceUnit.INCH, this.x, this.y, AngleUnit.RADIANS, this.getDirection(AngleUnit.RADIANS));
     }
 }
