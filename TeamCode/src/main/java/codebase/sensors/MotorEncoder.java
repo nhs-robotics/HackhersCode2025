@@ -3,12 +3,12 @@ package codebase.sensors;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class MotorEncoder implements Encoder {
-    private DcMotor encoder;
-    private double ticksPerRotation;
+    private final DcMotor encoder;
+    private final double ticksPerRotation;
     /**
      * Diameter of the wheel measured in inches.
      */
-    private double wheelDiameter;
+    private final double wheelDiameter;
 
     public MotorEncoder(DcMotor encoder, double ticksPerRotation, double wheelDiameter) {
         this.encoder = encoder;
@@ -18,7 +18,7 @@ public class MotorEncoder implements Encoder {
     }
 
     public double getTicks() {
-        return this.encoder.getPosition();
+        return this.encoder.getCurrentPosition();
     }
 
     /**
