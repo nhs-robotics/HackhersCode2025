@@ -13,9 +13,9 @@ public class SimultaneousAction implements Action {
             throw new IllegalArgumentException("You must pass at least one action");
         }
 
-        this.actions = new ArrayList<Action>();
+        this.actions = new ArrayList<>();
         for (Action action : actions) {
-            this.add(action);
+            this.add(action, false);
         }
     }
 
@@ -45,7 +45,7 @@ public class SimultaneousAction implements Action {
         }
     }
 
-    public void add(@NonNull Action action) {
+    public void add(@NonNull Action action, boolean init) {
         String actionName = action.getClass().getName();
 
         for (Action a : actions) {
@@ -54,5 +54,7 @@ public class SimultaneousAction implements Action {
             }
         }
         actions.add(action);
+
+        if (init) action.init();
     }
 }
