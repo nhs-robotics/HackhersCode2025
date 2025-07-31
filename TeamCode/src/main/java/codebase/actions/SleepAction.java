@@ -1,6 +1,6 @@
 package codebase.actions;
 
-public class SleepAction implements Action{
+public class SleepAction implements Action {
 
     private final long ms;
 

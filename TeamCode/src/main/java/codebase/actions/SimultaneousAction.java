@@ -8,13 +8,12 @@ public class SimultaneousAction implements Action {
 
     private final ArrayList<Action> actions;
 
-    public SimultaneousAction(Action... actions) {
-        if (actions.length == 0) {
-            throw new IllegalArgumentException("You must pass at least one action");
-        }
-
+    public SimultaneousAction(Action first, Action... rest) {
         this.actions = new ArrayList<>();
-        for (Action action : actions) {
+
+        this.actions.add(first);
+
+        for (Action action : rest) {
             this.add(action, false);
         }
     }
@@ -50,11 +49,13 @@ public class SimultaneousAction implements Action {
 
         for (Action a : actions) {
             if (a.getClass().getName().equals(actionName)) {
-                throw new IllegalArgumentException("You can't add multiple of the same Action to SimultaneousAction.");
+                throw new IllegalArgumentException("You can't add multiple of the same class of Action to SimultaneousAction.");
             }
         }
         actions.add(action);
 
-        if (init) action.init();
+        if (init) {
+            action.init();
+        }
     }
 }
