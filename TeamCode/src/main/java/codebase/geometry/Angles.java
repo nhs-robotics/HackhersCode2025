@@ -1,7 +1,5 @@
 package codebase.geometry;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 public class Angles {
     public static double angleDifference(double fromAngle, double toAngle) {
         // Calculate initial difference (toAngle - fromAngle)

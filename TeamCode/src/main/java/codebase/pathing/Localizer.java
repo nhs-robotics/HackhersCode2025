@@ -5,7 +5,7 @@ import codebase.geometry.FieldPosition;
 
 public interface Localizer extends Loop {
 
-    public FieldPosition getCurrentPosition();
+    FieldPosition getCurrentPosition();
 
-    public FieldPosition init(FieldPosition initialPosition);
+    FieldPosition init(FieldPosition initialPosition);
 }
