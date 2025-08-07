@@ -10,22 +10,10 @@ public class FieldPosition extends Point {
     /**
      * The direction of the field position defined as radians counterclockwise from directly to the right of the field
      */
-    private double direction;
+    public double direction;
 
-    public FieldPosition(double x, double y, double direction, AngleUnit angleUnit) {
+    public FieldPosition(double x, double y, double direction) {
         super(x, y);
-        setDirection(direction, angleUnit);
-    }
-
-    public void setDirection(double direction, AngleUnit angleUnit) {
-        this.direction = angleUnit.toRadians(direction);
-    }
-
-    public double getDirection(AngleUnit angleUnit) {
-        return angleUnit.fromRadians(direction);
-    }
-
-    public Pose2D toPose2D() {
-        return new Pose2D(DistanceUnit.INCH, this.x, this.y, AngleUnit.RADIANS, this.getDirection(AngleUnit.RADIANS));
+        this.direction = direction;
     }
 }

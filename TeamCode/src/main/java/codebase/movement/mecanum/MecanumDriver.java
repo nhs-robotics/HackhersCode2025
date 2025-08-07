@@ -1,7 +1,5 @@
 package codebase.movement.mecanum;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 import codebase.geometry.FieldPosition;
 import codebase.geometry.MovementVector;
 import codebase.hardware.Motor;
@@ -127,7 +125,7 @@ public class MecanumDriver {
      * @param powerInput MovementVector containing absolute power inputs (-1 to 1).
      */
     public void setAbsolutePower(FieldPosition position, MovementVector powerInput) {
-        double direction = position.getDirection(AngleUnit.RADIANS);
+        double direction = position.direction;
 
         double relativeVerticalPower = Math.cos(direction) * powerInput.getHorizontalVelocity() + Math.sin(direction) * powerInput.getVerticalVelocity();
         double relativeHorizontalPower = Math.sin(direction) * powerInput.getHorizontalVelocity() - Math.cos(direction) * powerInput.getVerticalVelocity();
@@ -148,7 +146,7 @@ public class MecanumDriver {
      * @param velocity MovementVector containing absolute velocity inputs (inches/second or radians/second).
      */
     public void setAbsoluteVelocity(FieldPosition position, MovementVector velocity) {
-        double direction = position.getDirection(AngleUnit.RADIANS);
+        double direction = position.direction;
 
         double relativeVerticalVelocity = Math.cos(direction) * velocity.getHorizontalVelocity() + Math.sin(direction) * velocity.getVerticalVelocity();
         double relativeHorizontalVelocity = Math.sin(direction) * velocity.getHorizontalVelocity() - Math.cos(direction) * velocity.getVerticalVelocity();
