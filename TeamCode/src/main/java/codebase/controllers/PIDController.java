@@ -1,37 +1,24 @@
 package codebase.controllers;
 
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+
 import java.util.function.Supplier;
 
 public class PIDController {
 
-    private final double Kp;
-    private final double Ki;
-    private final double Kd;
-
-    private final Supplier<Double> currentPositionSupplier;
-
-    private final Supplier<Double> targetPositionSupplier;
-
-    private Supplier<Double> errorSupplier;
+    private final PIDCoefficients coefficients;
+    private final Supplier<Double> errorSupplier;
 
     private double integralSum = 0;
     private double lastError = 0;
     private double lastTime = 0;
 
-    public PIDController(double Kp, double Ki, double Kd, Supplier<Double> currentPositionSupplier, Supplier<Double> targetPositionSupplier) {
-        this.Kp = Kp;
-        this.Ki = Ki;
-        this.Kd = Kd;
-
-        this.currentPositionSupplier = currentPositionSupplier;
-        this.targetPositionSupplier = targetPositionSupplier;
-
-        this.errorSupplier = () -> this.targetPositionSupplier.get() - this.currentPositionSupplier.get();
+    public PIDController(PIDCoefficients coefficients, Supplier<Double> currentPositionSupplier, Supplier<Double> targetPositionSupplier) {
+        this(coefficients, () -> targetPositionSupplier.get() - currentPositionSupplier.get());
     }
 
-    public PIDController(double Kp, double Ki, double Kd, Supplier<Double> currentPositionSupplier, Supplier<Double> targetPositionSupplier, Supplier<Double> errorSupplier) {
-        this(Kp, Ki, Kd, currentPositionSupplier, targetPositionSupplier);
-
+    public PIDController(PIDCoefficients coefficients, Supplier<Double> errorSupplier) {
+        this.coefficients = coefficients;
         this.errorSupplier = errorSupplier;
     }
 
@@ -50,7 +37,7 @@ public class PIDController {
 
         integralSum += (error * deltaTimeSeconds);
 
-        double result = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
+        double result = (coefficients.p * error) + (coefficients.i * integralSum) + (coefficients.d * derivative);
 
         lastError = error;
         lastTime = System.currentTimeMillis();
