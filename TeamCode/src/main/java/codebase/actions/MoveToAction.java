@@ -1,6 +1,7 @@
 package codebase.actions;
 
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDController;
 
 import codebase.geometry.Angles;
 import codebase.geometry.FieldPosition;
