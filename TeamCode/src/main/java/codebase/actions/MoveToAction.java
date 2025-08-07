@@ -1,8 +1,8 @@
 package codebase.actions;
 
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDController;
 
+import codebase.controllers.PIDController;
 import codebase.geometry.Angles;
 import codebase.geometry.FieldPosition;
 import codebase.geometry.MovementVector;
@@ -44,12 +44,10 @@ public class MoveToAction implements Action {
         this.maxDistanceError = maxDistanceError;
         this.maxRotationalError = maxRotationalError;
 
-        this.xPID = new PIDController(MOVEMENT_PID_COEFFICIENTS.p, MOVEMENT_PID_COEFFICIENTS.i, MOVEMENT_PID_COEFFICIENTS.d, () -> localizer.getCurrentPosition().x, () -> destination.x);
-        this.yPID = new PIDController(MOVEMENT_PID_COEFFICIENTS.p, MOVEMENT_PID_COEFFICIENTS.i, MOVEMENT_PID_COEFFICIENTS.d, () -> localizer.getCurrentPosition().y, () -> destination.y);
+        this.xPID = new PIDController(MOVEMENT_PID_COEFFICIENTS, () -> localizer.getCurrentPosition().x, () -> destination.x);
+        this.yPID = new PIDController(MOVEMENT_PID_COEFFICIENTS, () -> localizer.getCurrentPosition().y, () -> destination.y);
         this.directionPID = new PIDController(
-                DIRECTION_PID_COEFFICIENTS.p, DIRECTION_PID_COEFFICIENTS.i, DIRECTION_PID_COEFFICIENTS.d,
-                () -> localizer.getCurrentPosition().direction,
-                () -> destination.direction,
+                DIRECTION_PID_COEFFICIENTS,
                 () -> Angles.angleDifference(localizer.getCurrentPosition().direction, destination.direction)
         );
     }
