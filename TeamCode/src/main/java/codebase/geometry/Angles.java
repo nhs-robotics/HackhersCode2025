@@ -1,8 +1,7 @@
 package codebase.geometry;
 
-public class Angles {
+public final class Angles {
     public static double angleDifference(double fromAngle, double toAngle) {
-        // Calculate initial difference (toAngle - fromAngle)
         double diff = toAngle - fromAngle;
 
         // Normalize to [-2PI, 2PI]
@@ -17,4 +16,6 @@ public class Angles {
 
         return diff;
     }
+
+    private Angles() {}
 }

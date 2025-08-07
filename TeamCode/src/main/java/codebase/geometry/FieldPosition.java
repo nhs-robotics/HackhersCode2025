@@ -16,8 +16,4 @@ public class FieldPosition extends Point {
         super(x, y);
         this.direction = direction;
     }
-
-    public Pose2D toPose2D() {
-        return new Pose2D(DistanceUnit.INCH, this.x, this.y, AngleUnit.RADIANS, this.direction);
-    }
 }

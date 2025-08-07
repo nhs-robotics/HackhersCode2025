@@ -1,5 +1,6 @@
 package codebase.actions;
 
+import codebase.controllers.PIDCoefficients;
 import codebase.controllers.PIDController;
 import codebase.geometry.Angles;
 import codebase.geometry.FieldPosition;
@@ -9,21 +10,15 @@ import codebase.pathing.Localizer;
 
 public class MoveToAction implements Action {
 
-    private static double MOVEMENT_Kp = 1;
-    private static double MOVEMENT_Ki = 0;
-    private static double MOVEMENT_Kd = 0;
-
-    private static double DIRECTION_Kp = 1;
-    private static double DIRECTION_Ki = 0;
-    private static double Direction_Kd = 0;
-
+    private static final PIDCoefficients MOVEMENT_PID_COEFFICIENTS = new PIDCoefficients(1, 0, 0);
+    private static final PIDCoefficients DIRECTION_PID_COEFFICIENTS = new PIDCoefficients(1, 0, 0);
     private final MecanumDriver driver;
     private final Localizer localizer;
 
     private final FieldPosition destination;
 
     /**
-     * The max magnitude of the robot velocity in inches/sec
+     * The speed to move horizontally/vertically or some combination of the two in inches/sec
      */
     private final double movementSpeed;
 
@@ -48,10 +43,10 @@ public class MoveToAction implements Action {
         this.maxDistanceError = maxDistanceError;
         this.maxRotationalError = maxRotationalError;
 
-        this.xPID = new PIDController(MOVEMENT_Kp, MOVEMENT_Ki, MOVEMENT_Kd, () -> localizer.getCurrentPosition().x, () -> destination.x);
-        this.yPID = new PIDController(MOVEMENT_Kp, MOVEMENT_Ki, MOVEMENT_Kd, () -> localizer.getCurrentPosition().y, () -> destination.y);
+        this.xPID = new PIDController(MOVEMENT_PID_COEFFICIENTS.Kp, MOVEMENT_PID_COEFFICIENTS.Ki, MOVEMENT_PID_COEFFICIENTS.Kd, () -> localizer.getCurrentPosition().x, () -> destination.x);
+        this.yPID = new PIDController(MOVEMENT_PID_COEFFICIENTS.Kp, MOVEMENT_PID_COEFFICIENTS.Ki, MOVEMENT_PID_COEFFICIENTS.Kd, () -> localizer.getCurrentPosition().y, () -> destination.y);
         this.directionPID = new PIDController(
-                DIRECTION_Kp, DIRECTION_Ki, Direction_Kd,
+                DIRECTION_PID_COEFFICIENTS.Kp, DIRECTION_PID_COEFFICIENTS.Ki, DIRECTION_PID_COEFFICIENTS.Kd,
                 () -> localizer.getCurrentPosition().direction,
                 () -> destination.direction,
                 () -> Angles.angleDifference(localizer.getCurrentPosition().direction, destination.direction)
@@ -62,7 +57,6 @@ public class MoveToAction implements Action {
     public void init() {
 
     }
-
 
     @Override
     public void loop() {
