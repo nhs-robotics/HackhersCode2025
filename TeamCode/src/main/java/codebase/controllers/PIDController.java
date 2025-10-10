@@ -12,6 +12,7 @@ public class PIDController {
     private double integralSum = 0;
     private double lastError = 0;
     private double lastTime = 0;
+    private double lastDerivative = 0;
 
     public PIDController(PIDCoefficients coefficients, Supplier<Double> currentPositionSupplier, Supplier<Double> targetPositionSupplier) {
         this(coefficients, () -> targetPositionSupplier.get() - currentPositionSupplier.get());
@@ -33,7 +34,10 @@ public class PIDController {
 
         double error = errorSupplier.get();
 
-        double derivative = (error - lastError) / deltaTimeSeconds;
+        double rawDerivative = (error - lastError) / deltaTimeSeconds;
+
+        double alpha = 0.01;
+        double derivative = (alpha * rawDerivative) + ((1 - alpha) * lastDerivative);
 
         integralSum += (error * deltaTimeSeconds);
 
@@ -41,6 +45,7 @@ public class PIDController {
 
         lastError = error;
         lastTime = System.currentTimeMillis();
+        lastDerivative = derivative;
 
         return result;
     }
