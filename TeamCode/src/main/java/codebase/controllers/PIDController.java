@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 public class PIDController {
 
-    private final PIDCoefficients coefficients;
+    private PIDCoefficients coefficients;
     private final Supplier<Double> errorSupplier;
 
     private double integralSum = 0;
@@ -48,5 +48,9 @@ public class PIDController {
         lastDerivative = derivative;
 
         return result;
+    }
+
+    public void setCoefficients(PIDCoefficients coefficients) {
+        this.coefficients = coefficients;
     }
 }
