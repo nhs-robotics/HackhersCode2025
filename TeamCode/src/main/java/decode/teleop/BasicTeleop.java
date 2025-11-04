@@ -11,13 +11,16 @@ import codebase.movement.mecanum.MecanumCoefficientMatrix;
 import codebase.movement.mecanum.MecanumCoefficientSet;
 import codebase.movement.mecanum.MecanumDriver;
 
-@TeleOp(name="Coefficient Configuration")
+@TeleOp(name="Basic Mecanum TeleOp")
 public class BasicTeleop extends OpMode {
 
     private Motor fl, fr, bl, br;
     private Motor intake;
-    private boolean spinning = false;
+
+    private boolean intakeForward = false;
+    private boolean intakeReverse = false;
     private boolean prevAState = false;
+    private boolean prevYState = false;
 
     private MecanumDriver driver;
     private Gamepad gamepad;
@@ -41,20 +44,47 @@ public class BasicTeleop extends OpMode {
 
     @Override
     public void loop() {
-        driver.setRelativePower(new MovementVector(
-                gamepad.leftJoystick.getY(),
-                gamepad.leftJoystick.getX(),
-                gamepad.rightJoystick.getX()
-        ));
-
         gamepad.loop();
 
-        // Toggle intake on button A press
+        // Drive controls
+        double forward = gamepad.leftJoystick.getY();  // fixed: forward stick = forward
+        double strafe = gamepad.leftJoystick.getX();    // right stick = right
+        double rotate = gamepad.rightJoystick.getX();   // right stick = rotate clockwise
+
+        double flPower = forward + strafe + rotate;
+        double frPower = forward - strafe - rotate;
+        double blPower = forward - strafe + rotate;
+        double brPower = forward + strafe - rotate;
+
+        double max = Math.max(1.0, Math.max(Math.abs(flPower),
+                Math.max(Math.abs(frPower),
+                        Math.max(Math.abs(blPower), Math.abs(brPower)))));
+
+        fl.setPower(flPower / max);
+        fr.setPower(frPower / max);
+        bl.setPower(blPower / max);
+        br.setPower(brPower / max);
+
+        // Intake logic
         if (gamepad1.a && !prevAState) {
-            spinning = !spinning;
-            intake.setPower(spinning ? -1.0 : 0.0); // negative = reverse spin
+            intakeForward = !intakeForward;
+            intakeReverse = false; // cancel reverse if active
+        }
+
+        if (gamepad1.y && !prevYState) {
+            intakeReverse = !intakeReverse;
+            intakeForward = false; // cancel forward if active
+        }
+
+        if (intakeForward) {
+            intake.setPower(1.0);
+        } else if (intakeReverse) {
+            intake.setPower(-1.0);
+        } else {
+            intake.setPower(0.0);
         }
 
         prevAState = gamepad1.a;
+        prevYState = gamepad1.y;
     }
 }
