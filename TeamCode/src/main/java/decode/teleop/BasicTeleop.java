@@ -2,113 +2,229 @@ package decode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
-import codebase.gamepad.Gamepad;
 import codebase.movement.mecanum.MecanumCoefficientMatrix;
-
 import codebase.movement.mecanum.MecanumCoefficientSet;
 import codebase.movement.mecanum.MecanumDriver;
- import codebase.hardware.Motor;
+import codebase.hardware.Motor;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
-@TeleOp(name="Basic Mecanum TeleOp")
+
+@TeleOp(name="BasicTeleOp")
 public class BasicTeleop extends OpMode {
 
+    // Drive
     private Motor fl, fr, bl, br;
-    private Motor intake;
-    private Motor sabine;
+    // ===== STORAGE PID =====
+    private static final double STORAGE_P = 8.0;
+    private static final double STORAGE_I = 0.0;
+    private static final double STORAGE_D = 0.4;
 
+
+    // Accessories
+    private Motor intake, sabine, sabine2;
+    //sabines are the flywheels
+    private DcMotorEx storage;
+    private Servo servo1;
+    //pusher to push artifact into flywheel
+    double countsPerRev = 288.0; //can be changed as per rotation
+    double countsPerDegree = countsPerRev / 360.0;
+
+    private int storageStepIndex = 0;
+
+
+    // ===== STORAGE CONSTANTS =====
+    private static final int TICKS_PER_REV = 286; //measured val
+    private static final int STEP_DEGREES = 120;
+    private static final int TICKS_PER_STEP =
+            (int)(TICKS_PER_REV * (STEP_DEGREES / 360.0));
+
+    private static final double STORAGE_POWER = 0.4;
+
+
+    // Button edge detection
+    private boolean prevLB = false;
+    private boolean prevRB = false;
+    private boolean prevA  = false;
+    private boolean prevB  = false;
+    private boolean prevX  = false;
+    private boolean prevY  = false;
+
+    // Toggles
     private boolean intakeForward = false;
     private boolean intakeReverse = false;
     private boolean sabineForward = false;
     private boolean sabineReverse = false;
+    private boolean servosForward = false;
 
-    private boolean prevAState = false;
-    private boolean prevYState = false;
-    private boolean prevBState = false;
-    private boolean prevXState = false;
-
+    // Mecanum
     private MecanumDriver driver;
-    private Gamepad gamepad;
 
     @Override
     public void init() {
+
+        // Drive motors
         fl = new Motor(hardwareMap.get(DcMotorEx.class, "fl"));
         fr = new Motor(hardwareMap.get(DcMotorEx.class, "fr"));
         bl = new Motor(hardwareMap.get(DcMotorEx.class, "bl"));
-
         br = new Motor(hardwareMap.get(DcMotorEx.class, "br"));
-        intake = new Motor(hardwareMap.get(DcMotorEx.class, "intake")); // port 1?
-        sabine = new Motor(hardwareMap.get(DcMotorEx.class, "sabine")); // port 3
+
+        // Accessories
+        intake  = new Motor(hardwareMap.get(DcMotorEx.class, "intake"));
+        sabine  = new Motor(hardwareMap.get(DcMotorEx.class, "sabine"));
+        sabine2 = new Motor(hardwareMap.get(DcMotorEx.class, "sabine2"));
+
+        //storage setup
+        storage = hardwareMap.get(DcMotorEx.class, "storage");
+
+        storage.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        storage.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        storage.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        storage.setTargetPositionTolerance(5);
+
+        PIDCoefficients storagePID =
+                new PIDCoefficients(STORAGE_P, STORAGE_I, STORAGE_D);
+
+        storage.setPIDCoefficients(
+                DcMotor.RunMode.RUN_TO_POSITION,
+                storagePID
+        );
+
+        //servo setup
+        servo1 = hardwareMap.get(Servo.class, "servo1");
+        servo1.setPosition(0);
+
+        //mecanum setup
         driver = new MecanumDriver(
                 fl, fr, bl, br,
-                new MecanumCoefficientMatrix(new MecanumCoefficientSet(1, 1, 1, 1), 1),
+                new MecanumCoefficientMatrix(
+                        new MecanumCoefficientSet(1, 1, 1, 1),
+                        1
+                ),
                 1
         );
 
-        gamepad = new Gamepad(gamepad1);
+
+
+
+
     }
 
     @Override
     public void loop() {
-        gamepad.loop();
+        telemetry.addData("Storage Encoder", storage.getCurrentPosition());
+        telemetry.addData("Storage Step", storageStepIndex);
+        telemetry.addData("Storage Target",
+                storageStepIndex * TICKS_PER_STEP);
 
-        // Mecanum drive (the wheels)
-        double forward = gamepad.leftJoystick.getY();
-        double strafe = gamepad.leftJoystick.getX();
-        double rotate = gamepad.rightJoystick.getX();
+
+        // ================= DRIVE =================
+        double forward = -gamepad1.left_stick_y;
+        double strafe  =  gamepad1.left_stick_x;
+        double rotate  =  gamepad1.right_stick_x;
 
         double flPower = forward + strafe + rotate;
         double frPower = forward - strafe - rotate;
-
         double blPower = forward - strafe + rotate;
         double brPower = forward + strafe - rotate;
 
-        double max = Math.max(1.0, Math.max(Math.abs(flPower),
+        double max = Math.max(1.0,
+                Math.max(Math.abs(flPower),
+                        Math.max(Math.abs(frPower),
+                                Math.max(Math.abs(blPower), Math.abs(brPower)))));
 
-                Math.max(Math.abs(frPower),
-                        Math.max(Math.abs(blPower), Math.abs(brPower)))));
+        double driveVelocity = 4500;
 
-        fl.setPower(flPower / max);
+        fl.setVelocity((flPower / max) * driveVelocity);
+        fr.setVelocity((frPower / max) * driveVelocity);
+        bl.setVelocity((blPower / max) * driveVelocity);
+        br.setVelocity((brPower / max) * driveVelocity);
 
-        fr.setPower(frPower / max);
+        // ================= INTAKE =================
+        double intakeVelocity = 900;
 
-        bl.setPower(blPower / max);
-
-        br.setPower(brPower / max);
-
-        // SABINE (motor for the outtake/spinny wheels)
-        if (gamepad1.a && !prevAState) {
-            sabineForward = !sabineForward;
-            sabineReverse = false;
-        }
-        if (gamepad1.y && !prevYState) {
-            sabineReverse = !sabineReverse;
-            sabineForward = false;
-        }
-
-        if (sabineForward) sabine.setPower(1.0);
-        else if (sabineReverse) sabine.setPower(-1.0);
-        else sabine.setPower(0.0);
-
-        // INTAKE (Motor/green spinny things)
-        if (gamepad1.b && !prevBState) {
+        if (gamepad1.a && !prevA) {
             intakeForward = !intakeForward;
             intakeReverse = false;
         }
-        if (gamepad1.x && !prevXState) {
+
+        if (gamepad1.y && !prevY) {
             intakeReverse = !intakeReverse;
             intakeForward = false;
         }
 
-        if (intakeForward) intake.setPower(1.0);
-        else if (intakeReverse) intake.setPower(-1.0);
-        else intake.setPower(0.0);
+        if (intakeForward) intake.setVelocity(intakeVelocity);
+        else if (intakeReverse) intake.setVelocity(-intakeVelocity);
+        else intake.setVelocity(0);
 
-        // Update prev statess yay
-        prevAState = gamepad1.a;
-        prevYState = gamepad1.y;
-        prevBState = gamepad1.b;
-        prevXState = gamepad1.x;
+        // ================= SABINE =================
+        double sabineVelocity = 500;
+
+        if (gamepad1.b && !prevB) {
+            sabineForward = !sabineForward;
+            sabineReverse = false;
+        }
+
+        if (gamepad1.x && !prevX) {
+            sabineReverse = !sabineReverse;
+            sabineForward = false;
+        }
+
+        if (sabineForward) {
+            sabine.setVelocity(sabineVelocity);
+            sabine2.setVelocity(sabineVelocity);
+        } else if (sabineReverse) {
+            sabine.setVelocity(-sabineVelocity);
+            sabine2.setVelocity(-sabineVelocity);
+        } else {
+            sabine.setVelocity(0);
+            sabine2.setVelocity(0);
+        }
+
+        // ===== STORAGE CONTROL =====
+        if (gamepad1.left_bumper && !prevLB && !storage.isBusy()) {
+
+            storageStepIndex++; // advance to next preset
+
+            int targetPosition = storageStepIndex * TICKS_PER_STEP;
+
+            storage.setTargetPosition(targetPosition);
+            storage.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            storage.setPower(STORAGE_POWER);
+        }
+
+// Optional holding power after reaching target
+        if (!storage.isBusy()
+                && storage.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+
+            storage.setPower(0.1);
+        }
+
+
+        //if (!storage.isBusy() && storage.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+        //    storage.setPower(0);
+        //    storage.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //}
+
+
+        // ======= SERVO =============
+        if (gamepad1.right_bumper && !prevRB) {
+            servosForward = !servosForward;
+        }
+
+        servo1.setPosition(servosForward ? 0.0 : 1.0);
+
+        // ============ BUTTON STATE UPDATES =================
+        prevLB = gamepad1.left_bumper;
+        prevRB = gamepad1.right_bumper;
+        prevA  = gamepad1.a;
+        prevB  = gamepad1.b;
+        prevX  = gamepad1.x;
+        prevY  = gamepad1.y;
+
     }
 }
