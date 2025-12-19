@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import codebase.controllers.PIDController;
+import codebase.geometry.Angles;
 import codebase.movement.mecanum.MecanumCoefficientMatrix;
 import codebase.movement.mecanum.MecanumCoefficientSet;
 import codebase.movement.mecanum.MecanumDriver;
@@ -19,9 +21,9 @@ public class BasicTeleop extends OpMode {
     // Drive
     private Motor fl, fr, bl, br;
     // ===== STORAGE PID =====
-    private static final double STORAGE_P = 8.0;
+    private static final double STORAGE_P = 4;
     private static final double STORAGE_I = 0.0;
-    private static final double STORAGE_D = 0.4;
+    private static final double STORAGE_D = 0.0;
 
 
     // Accessories
@@ -30,7 +32,7 @@ public class BasicTeleop extends OpMode {
     private DcMotorEx storage;
     private Servo servo1;
     //pusher to push artifact into flywheel
-    double countsPerRev = 288.0; //can be changed as per rotation
+    double countsPerRev = 260.0; //can be changed as per rotation
     double countsPerDegree = countsPerRev / 360.0;
 
     private int storageStepIndex = 0;
@@ -38,7 +40,7 @@ public class BasicTeleop extends OpMode {
 
     // ===== STORAGE CONSTANTS =====
     private static final int TICKS_PER_REV = 286; //measured val
-    private static final int STEP_DEGREES = 120;
+    private static final int STEP_DEGREES = 30;
     private static final int TICKS_PER_STEP =
             (int)(TICKS_PER_REV * (STEP_DEGREES / 360.0));
 
@@ -59,6 +61,10 @@ public class BasicTeleop extends OpMode {
     private boolean sabineForward = false;
     private boolean sabineReverse = false;
     private boolean servosForward = false;
+
+    private float storagePosition = 0;
+
+    private PIDController storagePID;
 
     // Mecanum
     private MecanumDriver driver;
@@ -84,15 +90,9 @@ public class BasicTeleop extends OpMode {
         storage.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         storage.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        storage.setTargetPositionTolerance(5);
 
-        PIDCoefficients storagePID =
-                new PIDCoefficients(STORAGE_P, STORAGE_I, STORAGE_D);
-
-        storage.setPIDCoefficients(
-                DcMotor.RunMode.RUN_TO_POSITION,
-                storagePID
-        );
+        storagePID =
+                new PIDController(new PIDCoefficients(STORAGE_P, STORAGE_I, STORAGE_D), () -> Angles.angleDifference(storage.getCurrentPosition(), storagePosition));
 
         //servo setup
         servo1 = hardwareMap.get(Servo.class, "servo1");
@@ -186,23 +186,16 @@ public class BasicTeleop extends OpMode {
         }
 
         // ===== STORAGE CONTROL =====
-        if (gamepad1.left_bumper && !prevLB && !storage.isBusy()) {
+        if (gamepad1.left_bumper && !prevLB) {
 
             storageStepIndex++; // advance to next preset
 
-            int targetPosition = storageStepIndex * TICKS_PER_STEP;
+            storagePosition = storageStepIndex * TICKS_PER_STEP;
 
-            storage.setTargetPosition(targetPosition);
-            storage.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            storage.setPower(STORAGE_POWER);
+            storage.setPower(storagePosition);
         }
 
 // Optional holding power after reaching target
-        if (!storage.isBusy()
-                && storage.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
-
-            storage.setPower(0.1);
-        }
 
 
         //if (!storage.isBusy() && storage.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
